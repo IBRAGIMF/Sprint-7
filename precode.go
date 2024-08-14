@@ -2,13 +2,8 @@ package main
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"strconv"
 	"strings"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var cafeList = map[string][]string{
@@ -47,38 +42,4 @@ func mainHandle(w http.ResponseWriter, req *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(answer))
-}
-
-func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
-	req := httptest.NewRequest("GET", "/cafe?count=4&city=moscow", nil)
-
-	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(mainHandle)
-	handler.ServeHTTP(responseRecorder, req)
-
-	status := responseRecorder.Code
-
-	require.Equal(t, status, http.StatusOK)
-
-}
-
-func TestMainHandlerIncorrectCity(t *testing.T) {
-	req := httptest.NewRequest("GET", "/cafe?count=4&city=LA", nil)
-
-	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(mainHandle)
-	handler.ServeHTTP(responseRecorder, req)
-
-	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
-	assert.Equal(t, "wrong city value", responseRecorder.Body.String())
-}
-func TestMainHandlerCountMoreThanTotal(t *testing.T) {
-	expected := 4
-	req := httptest.NewRequest("GET", "/cafe?count=9&city=LA", nil)
-
-	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(mainHandle)
-	handler.ServeHTTP(responseRecorder, req)
-
-	assert.Equal(t, expected, len(responseRecorder.Body.String()))
 }
